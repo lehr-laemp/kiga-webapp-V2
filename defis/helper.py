@@ -14,6 +14,10 @@ helper.py
 import datetime
 import os
 import pickle
+import shutil
+import smtplib  # für Mail
+import ssl      # für Mail
+from email.message import EmailMessage
 import pyAesCrypt
 import streamlit as st
 import openpyxl
@@ -24,6 +28,10 @@ def excel_tabelle_entschluesseln():
     print('Datenbank entschlüsseln', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
 
     pyAesCrypt.decryptFile('Daten/sus.aes', 'Daten/sus.xlsx', st.secrets['tabelle_passwort'])
+
+    # Mache ein Backup der Datenbank
+    backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    shutil.copyfile('Daten/sus.aes', backup_dir)
 
     
     
@@ -123,6 +131,10 @@ def excel_tabelle_verschluesseln():
 
     # Excel-Tabelle löschen
     os.remove('Daten/sus.xlsx')
+
+    # Mache ein Backup der Datenbank
+    backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    shutil.copyfile('Daten/sus.aes', backup_dir)
     
     return True
 
@@ -154,3 +166,46 @@ def kiga_standorte_lesen(sus_liste):
         kiga_liste.append(sus_liste[i][4])
 
     return sorted(set(kiga_liste))
+
+
+# ---------------------------------------------------------
+def mail_senden(nachricht):
+    """
+    Schickt eine Nachricht beim Anmelden oder Abmelden
+    """
+
+    # Angaben für den Server
+    gmx_smpt = 'mail.gmx.net'
+    gmx_passwort = st.secrets['mail_passwort']
+    gmx_port = 587
+
+    # Angaben zum Mail
+    mail_von = 'satipati@gmx.ch'
+    mail_fuer = 'klameflu@gmail.com'
+    mail_betreff = nachricht
+    mail_text = """\
+    Hallo
+    Jemand hat sich erfolgreich an- oder abgemeldet.
+    Liebe Gruesse 
+    Hansruedi"""
+
+    # übersetzen in Email-Format
+    nachricht = EmailMessage()
+    nachricht.set_content(mail_text)
+
+    nachricht['Subject'] = mail_betreff
+    nachricht['From'] = mail_von 
+    nachricht['To'] = mail_fuer
+
+    # Verbindung mit Server
+    context = ssl.create_default_context()
+    try:
+        server = smtplib.SMTP(gmx_smpt, gmx_port)
+        server.set_debuglevel(2)
+        server.starttls(context=context)
+        server.login(mail_von, gmx_passwort)
+        server.send_message(nachricht)
+    except Exception as e:
+        print(e)
+    finally:
+        server.quit()
