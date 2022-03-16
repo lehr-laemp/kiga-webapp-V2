@@ -14,6 +14,7 @@ start.py
 # ---------------------------------------------------------
 import datetime
 import streamlit as st
+from defis import helper
 
 
 # ---------------------------------------------------------
@@ -45,6 +46,19 @@ def start_seite():
             st.info('Gehe zu **Eingabe**.')
             st.session_state['angemeldet'] = 'ja'
             leeres_feld.empty()
+            
+            # Daten entschlüsseln >> Excel-Tabelle
+            helper.excel_tabelle_entschluesseln()
+            
+            # Daten der SuS in eine Liste speichern
+            sus_liste = helper.excel_tabelle_in_liste_speichern()
+            
+            # SuS-Liste in einem pickle-Dump speichern
+            if not helper.liste_in_pickle_speichern(sus_liste):
+                st.warning('Konnte Dump nicht erstellen')
+
+            # Excel-Tabelle löschen
+            helper.excel_tabelle_loeschen()
         
         else:
             st.warning('Falsches Passwort.')

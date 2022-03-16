@@ -33,23 +33,8 @@ def eingabe_seite():
     else:
         st.info('Toll, jetzt kann es losgehen.')
 
-        if not os.path.exists('Daten/sus.tmp'):
-
-            # Daten entschlüsseln
-            helper.excel_tabelle_entschluesseln()
-            
-            # Daten der SuS in eine Liste speichern
-            sus_liste = helper.excel_tabelle_in_liste_speichern()
-
-            # SuS-Liste in einem pickle-Dump speichern
-            if not helper.liste_in_pickle_speichern(sus_liste):
-                st.warning('Konnte Dump nicht erstellen')
-
-            # Excel-Tabelle löschen
-            helper.excel_tabelle_loeschen()
-
-        else:
-            sus_liste = helper.liste_aus_pickle_holen()
+        # SuS-Liste aus Pickle-Dump holen
+        sus_liste = helper.liste_aus_pickle_holen()
 
         # Kiga wählen
         kiga_gewaehlt = st.selectbox(

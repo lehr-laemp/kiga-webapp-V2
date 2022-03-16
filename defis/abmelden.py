@@ -36,6 +36,7 @@ def abmelde_seite():
             platzhalter.empty()
             st.info('Herzlichen Dank für deine Mitarbeit.')
             helper.pickle_in_excel_speichern()
+            helper.mail_senden('Super!')
         
     else:
         st.warning('Gehe zu **Start** und melde dich an.')
