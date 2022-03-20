@@ -1,3 +1,6 @@
 .xlsx
 .streamlit/*
 secrets.toml
+*.xml
+Backup/*
+*.pyc

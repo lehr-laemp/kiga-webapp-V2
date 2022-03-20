@@ -14,12 +14,13 @@ start.py
 # ---------------------------------------------------------
 import datetime
 import streamlit as st
+from defis import helper
 
 
 # ---------------------------------------------------------
 def start_seite():
 
-    print('Lade Startseite:', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Lade Startseite')
 
     st.title('Kiga-Eingabe')
 
@@ -45,10 +46,27 @@ def start_seite():
             st.info('Gehe zu **Eingabe**.')
             st.session_state['angemeldet'] = 'ja'
             leeres_feld.empty()
-        
+            
+            # Daten entschlüsseln >> Excel-Tabelle
+            helper.excel_tabelle_entschluesseln()
+            
+            # Daten der SuS in eine Liste speichern
+            sus_liste = helper.excel_tabelle_in_liste_speichern()
+            
+            # SuS-Liste in einem pickle-Dump speichern
+            if not helper.liste_in_pickle_speichern(sus_liste):
+                st.warning('Konnte Dump nicht erstellen')
+
+            # Excel-Tabelle löschen
+            helper.excel_tabelle_loeschen()
+
+            # Mail senden
+            helper.mail_senden('Anmeldung')
+
         else:
             st.warning('Falsches Passwort.')
             st.session_state['angemeldet'] = 'nein'
+
     
     else:
         st.info('Gehe zu **Eingabe** oder zu **Abmelden**.')

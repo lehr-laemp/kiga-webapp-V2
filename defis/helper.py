@@ -14,23 +14,34 @@ helper.py
 import datetime
 import os
 import pickle
+import shutil
+import smtplib  # für Mail
+import ssl      # für Mail
+from threading import Timer
+from email.message import EmailMessage
 import pyAesCrypt
 import streamlit as st
 import openpyxl
 
+
 # ---------------------------------------------------------
 def excel_tabelle_entschluesseln():
 
-    print('Datenbank entschlüsseln', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Datenbank entschlüsseln')
 
     pyAesCrypt.decryptFile('Daten/sus.aes', 'Daten/sus.xlsx', st.secrets['tabelle_passwort'])
 
-    
-    
+    # Mache ein Backup der Datenbank
+    backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    shutil.copyfile('Daten/sus.aes', backup_dir)
+
+    return True
+
+
 # ---------------------------------------------------------
 def excel_tabelle_in_liste_speichern():
 
-    print('Excel-Tabelle in SuS-Liste speichern', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Excel-Tabelle in SuS-Liste speichern')
 
     # öffne und aktiviere Excel-Tabelle
     kiga_datei = openpyxl.load_workbook('Daten/sus.xlsx')
@@ -51,20 +62,23 @@ def excel_tabelle_in_liste_speichern():
     # OK print(sus_liste)
     return sus_liste
 
+
 # ---------------------------------------------------------
 def liste_in_pickle_speichern(sus_liste):
+    
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Liste in Pickle speichern')
 
-    print('Liste in Pickle speichern', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
-
+    # Liste in Pickle speichern
     with open('Daten/sus.tmp', 'wb') as datei_handler:
         pickle.dump(sus_liste, datei_handler)
 
     return True
 
+
 # ---------------------------------------------------------
 def excel_tabelle_loeschen():
     
-    print('Excel-Tabelle löschen', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Excel-Tabelle löschen')
 
     os.remove('Daten/sus.xlsx')
 
@@ -81,9 +95,8 @@ def pickle_in_excel_speichern():
         Löscht die entschlüsselte Tabelle
         Löscht den Pickle-Dump
     """
-
     
-    print('Pickle in Excel-Tabelle speichern', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Pickle in Excel-Tabelle speichern')
 
     # Pickle-Dump auslesen
     with open('Daten/sus.tmp', 'rb') as datei_handler:
@@ -116,13 +129,17 @@ def pickle_in_excel_speichern():
 # ---------------------------------------------------------
 def excel_tabelle_verschluesseln():
     
-    print('Excel-Tabelle verschlüsseln', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Excel-Tabelle verschlüsseln')
 
     # Excel-Tabelle verschlüsseln
     pyAesCrypt.encryptFile('Daten/sus.xlsx', 'Daten/sus.aes', st.secrets['tabelle_passwort'])
 
     # Excel-Tabelle löschen
     os.remove('Daten/sus.xlsx')
+
+    # Mache ein Backup der Datenbank
+    backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    shutil.copyfile('Daten/sus.aes', backup_dir)
     
     return True
 
@@ -130,7 +147,7 @@ def excel_tabelle_verschluesseln():
 # ---------------------------------------------------------
 def liste_aus_pickle_holen():
     
-    print('Liste aus Pickle-Dump holen', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'),': Liste aus Pickle-Dump holen')
 
     # Pickle-Dump auslesen
     with open('Daten/sus.tmp', 'rb') as datei_handler:
@@ -146,7 +163,7 @@ def kiga_standorte_lesen(sus_liste):
     return: Liste der Kiga, sortiert
     """
 
-    print('Kiga-Standorte einlesen', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Kiga-Standorte einlesen', )
 
     kiga_liste = []
     for i in range(len(sus_liste)):
@@ -154,3 +171,106 @@ def kiga_standorte_lesen(sus_liste):
         kiga_liste.append(sus_liste[i][4])
 
     return sorted(set(kiga_liste))
+
+
+# ---------------------------------------------------------
+def mail_senden(betreff):
+    """
+    Schickt eine Nachricht beim Anmelden oder Abmelden
+    """
+
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Schicke ein Mail')
+
+    # wieviele Backup-Dateien hat es?
+    backup_zaehler = 0
+    for pfad in os.listdir('Backup/'):
+        backup_zaehler += 1
+    # OK print('Anzahl Backup-Dateien:', backup_zaehler)
+
+    nachricht = f"""Mail von der Daten-Eingabe:
+    
+    Eine {betreff}.
+    
+    Es sind {backup_zaehler} Dateien im Backup-Ordner.
+    
+    Herzliche Grüsse :-)
+    """
+
+    # Angaben für den Server
+    gmx_smpt = 'mail.gmx.net'
+    gmx_passwort = st.secrets['mail_passwort']
+    gmx_port = 587
+
+    # Angaben zum Mail
+    mail_von = 'satipati@gmx.ch'
+    mail_fuer = 'klameflu@gmail.com'
+    mail_betreff = betreff
+    mail_text = nachricht
+
+    # übersetzen in Email-Format
+    nachricht = EmailMessage()
+    nachricht.set_content(mail_text)
+
+    nachricht['Subject'] = mail_betreff
+    nachricht['From'] = mail_von 
+    nachricht['To'] = mail_fuer
+
+    # Verbindung mit Server
+    context = ssl.create_default_context()
+    try:
+        server = smtplib.SMTP(gmx_smpt, gmx_port)
+        #server.set_debuglevel(1)
+        server.starttls(context=context)
+        server.login(mail_von, gmx_passwort)
+        server.send_message(nachricht)
+    except Exception as e:
+        print(e)
+    finally:
+        server.quit()
+
+
+# ---------------------------------------------------------
+def melde_status():
+
+    print(datetime.datetime.now().strftime('%H-%M-%S'),': Melde Status')
+
+    global timer
+    
+    # ist jemand angemeldet?
+    anmelde_status = 2 #st.session_state['angemeldet']
+    print(anmelde_status)
+    # geht nicht print(st.session_state.angemeldet)
+    # geht nicht print(st.session_state['timer'])
+
+    # wieviele Backup-Dateien hat es?
+    zaehler = 0
+    for pfad in os.listdir('Backup/'):
+        zaehler += 1
+    print('Anzahl Backup-Dateien:', zaehler)
+
+    # Timer stoppen und neu starten
+    timer.cancel()
+    start_timer()
+
+
+# ---------------------------------------------------------
+def start_timer():
+
+    global timer
+
+    print(datetime.datetime.now().strftime('%H-%M-%S'),': Starte den Timer')
+
+    # ti = Timer(30, melde_automatisch_ab, args=None)
+    timer = Timer(10, melde_status, args=None)
+    timer.start()
+
+
+# ---------------------------------------------------------
+def stop_timer():
+
+    global timer
+
+    print(datetime.datetime.now().strftime('%H-%M-%S'),': Stoppe den Timer')
+
+    timer.cancel()
+

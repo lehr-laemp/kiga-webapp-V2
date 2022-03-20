@@ -21,7 +21,7 @@ from defis import helper
 # ---------------------------------------------------------
 def eingabe_seite():
 
-    print('Lade Eingabe-Seite:', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Lade Eingabe-Seite')
 
     st.title('Kiga-Eingabe')
 
@@ -29,27 +29,15 @@ def eingabe_seite():
     if st.session_state['angemeldet'] == 'nein':
         st.warning('Gehe zu **Start** und melde dich an.')
 
+    elif not os.path.exists('Daten/sus.tmp'):
+        st.warning('Gehe zu **Start** und melde dich an.')
+
     # Angemeldet   
     else:
         st.info('Toll, jetzt kann es losgehen.')
 
-        if not os.path.exists('Daten/sus.tmp'):
-
-            # Daten entschlüsseln
-            helper.excel_tabelle_entschluesseln()
-            
-            # Daten der SuS in eine Liste speichern
-            sus_liste = helper.excel_tabelle_in_liste_speichern()
-
-            # SuS-Liste in einem pickle-Dump speichern
-            if not helper.liste_in_pickle_speichern(sus_liste):
-                st.warning('Konnte Dump nicht erstellen')
-
-            # Excel-Tabelle löschen
-            helper.excel_tabelle_loeschen()
-
-        else:
-            sus_liste = helper.liste_aus_pickle_holen()
+        # SuS-Liste aus Pickle-Dump holen
+        sus_liste = helper.liste_aus_pickle_holen()
 
         # Kiga wählen
         kiga_gewaehlt = st.selectbox(
@@ -93,91 +81,93 @@ def eingabe_seite():
         # Werte auslesen für Anzeige
         
         # DaZ
-        print('DaZ', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][5])
+        # OK print('DaZ', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][5])
         if sus_liste[kind_gewaehlt_index][5] == 'x':
             daz_wert = True
         else:
             daz_wert = False
 
         # Logo
-        print('Logo', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][6])
+        # OK print('Logo', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][6])
         if sus_liste[kind_gewaehlt_index][6] == 'x':
             logo_wert = True
         else:
             logo_wert = False
 
         # Hort
-        print('Hort', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][7])
+        # OK print('Hort', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][7])
         if sus_liste[kind_gewaehlt_index][7] == 'x':
             hort_wert = True
         else:
             hort_wert = False
 
         # andere Therapien
-        print('andere Therapien', sus_liste[kind_gewaehlt_index][1], 
-            sus_liste[kind_gewaehlt_index][8])
+        # OK print('andere Therapien', sus_liste[kind_gewaehlt_index][1], 
+        #   sus_liste[kind_gewaehlt_index][8])
         if sus_liste[kind_gewaehlt_index][8] == None:
-            andere_wert = '-'
+            andere_wert = ''
         else:
             andere_wert = sus_liste[kind_gewaehlt_index][8]
         
         # SAB
-        print('SAB', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][9])
+        # OK print('SAB', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][9])
         if sus_liste[kind_gewaehlt_index][9] == 'x':
             sab_wert = True
         else:
             sab_wert = False
 
         # gegen SAB
-        print('gegen SAB', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][10])
+        # OK print('gegen SAB', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][10])
         if sus_liste[kind_gewaehlt_index][10] == 'x':
             gegen_sab_wert = True
         else:
             gegen_sab_wert = False
 
         # EK
-        print('EK', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][11])
+        # OK print('EK', sus_liste[kind_gewaehlt_index][1], sus_liste[kind_gewaehlt_index][11])
         if sus_liste[kind_gewaehlt_index][11] == 'x':
             ek_wert = True
         else:
             ek_wert = False
 
         # Geschwister
-        print('Geschwister', sus_liste[kind_gewaehlt_index][1], 
-            sus_liste[kind_gewaehlt_index][12])
+        # OK print('Geschwister', sus_liste[kind_gewaehlt_index][1], 
+        #   sus_liste[kind_gewaehlt_index][12])
         if sus_liste[kind_gewaehlt_index][12] == None:
-            geschwister_wert = '-'
+            geschwister_wert = ''
         else:
             geschwister_wert = sus_liste[kind_gewaehlt_index][12]
 
         # Aufwand mit SuS
-        print('Aufwand mit SuS', sus_liste[kind_gewaehlt_index][1], 
-            sus_liste[kind_gewaehlt_index][13])
+        # OK print('Aufwand mit SuS', sus_liste[kind_gewaehlt_index][1], 
+        #   sus_liste[kind_gewaehlt_index][13])
         if sus_liste[kind_gewaehlt_index][13] == None:
             aufwand_sus_wert = 'wenig'
         else:
             aufwand_sus_wert = sus_liste[kind_gewaehlt_index][13]
 
         # Aufwand mit Eltern
-        print('Aufwand mit Eltern', sus_liste[kind_gewaehlt_index][1], 
-            sus_liste[kind_gewaehlt_index][14])
+        # OK print('Aufwand mit Eltern', sus_liste[kind_gewaehlt_index][1], 
+        #    sus_liste[kind_gewaehlt_index][14])
         if sus_liste[kind_gewaehlt_index][14] == None:
             aufwand_eltern_wert = 'wenig'
         else:
             aufwand_eltern_wert = sus_liste[kind_gewaehlt_index][14]
 
         # Bemerkungen
-        print('Bemerkungen', sus_liste[kind_gewaehlt_index][1], 
-            sus_liste[kind_gewaehlt_index][15])
+        # OK print('Bemerkungen', sus_liste[kind_gewaehlt_index][1], 
+        #    sus_liste[kind_gewaehlt_index][15])
         if sus_liste[kind_gewaehlt_index][15] == None:
-            bemerkungen_wert = '-'
+            bemerkungen_wert = ''
         else:
             bemerkungen_wert = sus_liste[kind_gewaehlt_index][15]
 
         
         ###########################
         # Formular für alle Eingaben
-        with st.form('Formular', clear_on_submit=True):
+        # Container, um SuS-Eingabe bei erfolgreicher Eingabe zu löschen
+        leeres_feld = st.empty()
+        with leeres_feld.form('Formular', clear_on_submit=True):
 
             # Therapien
             # 3 Spalten für Checkboxen
@@ -278,15 +268,9 @@ def eingabe_seite():
                 # Bemerkungen-Antwort speichern
                 sus_liste[kind_gewaehlt_index][15] = bemerkungen_antwort
 
-                
-                
                 # Liste in Pickle speichern
                 helper.liste_in_pickle_speichern(sus_liste)
                 # sus_liste = helper.liste_aus_pickle_holen()
 
+                leeres_feld.empty()
 
-
-        
-        # die ganze Liste
-        #st.write('')
-        #st.info(sus_liste)
