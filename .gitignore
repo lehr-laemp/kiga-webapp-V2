@@ -2,3 +2,8 @@
 .streamlit/*
 secrets.toml
 Backup/*
+.idea/vcs.xml
+.DS_Store
+*.xml
+*.iml
+*.pyc
