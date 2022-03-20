@@ -19,7 +19,7 @@ from defis import helper
 # ---------------------------------------------------------
 def abmelde_seite():
 
-    print('Lade Abmelde-Seite:', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Lade Abmelde-Seite')
 
     st.title('Kiga-Eingabe')
 
@@ -31,12 +31,12 @@ def abmelde_seite():
     if st.session_state['angemeldet'] == 'ja':
         
         abmelde_antwort = platzhalter.button('Abmelden')
-        if abmelde_antwort == True:
+        if abmelde_antwort:
             st.session_state['angemeldet'] = 'nein'
             platzhalter.empty()
             st.info('Herzlichen Dank für deine Mitarbeit.')
             helper.pickle_in_excel_speichern()
-            helper.mail_senden('Super!')
+            helper.mail_senden('Abmeldung')
         
     else:
         st.warning('Gehe zu **Start** und melde dich an.')

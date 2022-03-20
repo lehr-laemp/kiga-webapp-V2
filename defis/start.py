@@ -20,7 +20,7 @@ from defis import helper
 # ---------------------------------------------------------
 def start_seite():
 
-    print('Lade Startseite:', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Lade Startseite')
 
     st.title('Kiga-Eingabe')
 
@@ -59,10 +59,14 @@ def start_seite():
 
             # Excel-Tabelle löschen
             helper.excel_tabelle_loeschen()
-        
+
+            # Mail senden
+            helper.mail_senden('Anmeldung')
+
         else:
             st.warning('Falsches Passwort.')
             st.session_state['angemeldet'] = 'nein'
+
     
     else:
         st.info('Gehe zu **Eingabe** oder zu **Abmelden**.')

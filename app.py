@@ -18,10 +18,12 @@ app.py
 # ---------------------------------------------------------
 import os
 import datetime
+
 import streamlit as st
 from defis import start
 from defis import abmelden
 from defis import eingabe
+from defis import helper
 
 
 
@@ -32,7 +34,7 @@ def main():
     """
 
     print('\n')
-    print('Hauptprogramm:', datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S'))
+    print(datetime.datetime.now().strftime('%H-%M-%S'), ': Hauptprogramm')
 
     # allgemeine Angabe zur Seite
     st.set_page_config(
@@ -42,7 +44,7 @@ def main():
 
     # Menu an der Seite
     menu_item = st.sidebar.radio(
-        'Navigation', index=0, options=('Start', 'Eingabe', 'Abmelden', 'Test'))
+        'Navigation', index=0, options=('Start', 'Eingabe', 'Abmelden'))
 
     st.sidebar.warning('Abmelden nicht vergessen!')
 
@@ -56,16 +58,22 @@ def main():
     if menu_item == 'Abmelden':
         abmelden.abmelde_seite()
 
-    if menu_item == 'Test':
-        test_seite()
 
     return True
 
 
-
 # ---------------------------------------------------------
 if __name__ == "__main__":
-    
+
+    # # Timer starten oder stoppen
+    # if 'timer' not in st.session_state:
+    #     st.session_state['timer'] = 'start'
+    #     helper.start_timer()
+    #
+    # if st.session_state['timer'] == 'start':
+    #     helper.stop_timer()
+    #     helper.start_timer()
+            
     # Status: angemeldet oder nicht?
     if 'angemeldet' not in st.session_state:
         st.session_state['angemeldet'] = 'nein'
@@ -83,3 +91,4 @@ if __name__ == "__main__":
         st.write('')
         st.info('Jemand gibt gerade etwas ein.')
         st.info('Versuche es später nochmals.')
+
