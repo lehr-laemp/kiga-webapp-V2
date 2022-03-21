@@ -47,6 +47,7 @@ def main():
         'Navigation', index=0, options=('Start', 'Eingabe', 'Abmelden'))
 
     st.sidebar.warning('Abmelden nicht vergessen!')
+    st.sidebar.info(os.getcwd())
 
     # Verzweigung bei der Auswahl
     if menu_item == 'Start':
