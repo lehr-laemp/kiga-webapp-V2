@@ -38,7 +38,7 @@ def excel_tabelle_entschluesseln():
     # Viele Backups-Dateien
     # backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
     # nur 1 Backup-Datei
-    backup_dir = 'Backup/sus.aes'
+    backup_dir = 'Backup/backup-sus.aes'
     shutil.copyfile('Daten/sus.aes', backup_dir)
 
     return True
@@ -144,7 +144,8 @@ def excel_tabelle_verschluesseln():
     os.remove('Daten/sus.xlsx')
 
     # Mache ein Backup der Datenbank
-    backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    # backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    backup_dir = 'Backup/backup-sus.aes'
     shutil.copyfile('Daten/sus.aes', backup_dir)
     
     return True
