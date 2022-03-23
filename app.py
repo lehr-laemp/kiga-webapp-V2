@@ -23,7 +23,7 @@ import streamlit as st
 from defis import start
 from defis import abmelden
 from defis import eingabe
-from defis import test
+from defis import admin
 from defis import helper
 
 
@@ -45,7 +45,7 @@ def main():
 
     # Menu an der Seite
     menu_item = st.sidebar.radio(
-        'Navigation', index=0, options=('Start', 'Eingabe', 'Abmelden', 'TEST'))
+        'Navigation', index=0, options=('Start', 'Eingabe', 'Abmelden', 'Admin'))
 
     st.sidebar.warning('Abmelden nicht vergessen!')
     # st.sidebar.info(os.getcwd())
@@ -60,8 +60,8 @@ def main():
     if menu_item == 'Abmelden':
         abmelden.abmelde_seite()
 
-    if menu_item == 'TEST':
-        test.datei_laden()
+    if menu_item == 'Admin':
+        admin.datei_laden()
 
 
     return True
@@ -96,4 +96,5 @@ if __name__ == "__main__":
         st.write('')
         st.info('Jemand gibt gerade etwas ein.')
         st.info('Versuche es später nochmals.')
+        admin.datei_laden()
 
