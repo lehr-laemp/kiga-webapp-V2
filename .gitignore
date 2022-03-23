@@ -1,11 +1,8 @@
 .xlsx
 .streamlit/*
 secrets.toml
-.idea/vcs.xml
 *.DS_Store
 *.xml
 *.iml
 *.pyc
-.idea/*
-Backup/*
-*.pyc
++.idea/*
