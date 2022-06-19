@@ -17,8 +17,11 @@ import pickle
 import shutil
 import smtplib  # für Mail
 import ssl      # für Mail
-from threading import Timer
 from email.message import EmailMessage
+from email import encoders
+from email.mime.base import MIMEBase
+from email.mime.multipart import MIMEMultipart
+# from threading import Timer
 import pyAesCrypt
 import streamlit as st
 import openpyxl
@@ -32,7 +35,10 @@ def excel_tabelle_entschluesseln():
     pyAesCrypt.decryptFile('Daten/sus.aes', 'Daten/sus.xlsx', st.secrets['tabelle_passwort'])
 
     # Mache ein Backup der Datenbank
-    backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    # Viele Backups-Dateien
+    # backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    # nur 1 Backup-Datei
+    backup_dir = 'Backup/backup-sus.aes'
     shutil.copyfile('Daten/sus.aes', backup_dir)
 
     return True
@@ -138,7 +144,8 @@ def excel_tabelle_verschluesseln():
     os.remove('Daten/sus.xlsx')
 
     # Mache ein Backup der Datenbank
-    backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    # backup_dir = 'Backup/' + datetime.datetime.now().strftime('%y-%m-%d-%H-%M-%S') + '-sus.aes'
+    backup_dir = 'Backup/backup-sus.aes'
     shutil.copyfile('Daten/sus.aes', backup_dir)
     
     return True
@@ -207,13 +214,32 @@ def mail_senden(betreff):
     mail_betreff = betreff
     mail_text = nachricht
 
+    # Anhang für Mail
+    dateiname = 'sus.aes'
+    with open('Daten/sus.aes', "rb") as attachment:
+        # Add file as application/octet-stream
+        # Email client can usually download this automatically as attachment
+        part = MIMEBase("application", "octet-stream")
+        part.set_payload(attachment.read())
+
+    # Encode file in ASCII characters to send by email    
+    encoders.encode_base64(part)
+
+    # Add header as key/value pair to attachment part
+    part.add_header(
+        "Content-Disposition",
+        f"attachment; filename={dateiname}",)
+    
     # übersetzen in Email-Format
-    nachricht = EmailMessage()
-    nachricht.set_content(mail_text)
+    nachricht = MIMEMultipart() #EmailMessage()
+    # nachricht.set_content(mail_text)
 
     nachricht['Subject'] = mail_betreff
     nachricht['From'] = mail_von 
     nachricht['To'] = mail_fuer
+
+    # Add attachment to message and convert message to string
+    nachricht.attach(part)
 
     # Verbindung mit Server
     context = ssl.create_default_context()
@@ -224,7 +250,8 @@ def mail_senden(betreff):
         server.login(mail_von, gmx_passwort)
         server.send_message(nachricht)
     except Exception as e:
-        print(e)
+        # print(e)
+        st.warning('Kann Email nicht senden.')
     finally:
         server.quit()
 
