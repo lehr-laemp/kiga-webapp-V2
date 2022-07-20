@@ -3,6 +3,5 @@
 secrets.toml
 *.DS_Store
 *.xml
-*.iml
 *.pyc
-+.idea/
+Backup/*
