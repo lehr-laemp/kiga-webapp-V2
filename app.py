@@ -9,7 +9,7 @@ app.py
 
     - Hauptprogramm
     - lädt alle nötigen Funktionen aus dem Ordner def
-    - Programm soll eine Oberfläche erstellen, damit Schülerdaten eingegeben werden könnnen
+    - Programm soll eine Oberfläche erstellen, damit Schülerdaten eingegeben werden können
         - geschützt - verschlüsselt
         - übers Internet
 
